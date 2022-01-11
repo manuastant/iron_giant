@@ -26,7 +26,7 @@ var jawMat = new THREE.MeshPhongMaterial({map: metal_texture, color:colors.darkG
 var screwMat = new THREE.MeshPhongMaterial({map: screw_thread_texture, color:colors.grey, side: THREE.DoubleSide, shininess: 7, specular: colors.white});
 
 // Cargar una textura sobre una forma custom como Extrude
-const extrude_texture = loader.load(metal3.src, texture => {
+const extrude_texture = loader.load('imgs/metal3.jpg', texture => {
     darkerGreyMat.map = texture;
     darkerGreyMat.needsUpdate = true;
 });
