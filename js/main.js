@@ -125,7 +125,7 @@ function create_environment(){
 	const comet_texture = loader.load('imgs/comet.jpg');
 	var comet_mat = new THREE.MeshStandardMaterial({map: comet_texture, roughness: 1, side: THREE.DoubleSide});
 
-	const moon_texture = loader.load('imgs/moon.jpg');
+	const moon_texture = loader.load('imgs/moon2.jpg');
 	var moon_mat = new THREE.MeshStandardMaterial({map: moon_texture, roughness: 1, side: THREE.DoubleSide});
 
 	const poster_texture = loader.load('imgs/iron_giant.png');
