@@ -1,32 +1,42 @@
+// Listeners para las teclas y el inicio del programa
 window.addEventListener('load', init, false);
- 
+window.addEventListener('keydown', handle_key_down, true)
+window.addEventListener('keyup', handle_key_up, true)
+
+// Variables globales
 var scene, robot,
-		camera, fieldOfView, aspectRatio, nearPlane, farPlane, HEIGHT, WIDTH,
-		renderer, container, controls;
+		camera, fov, aspect_ratio, near_plane, far_plane, HEIGHT, WIDTH,
+		renderer, container, controls, hemisphereLight, shadowLight;
 
-var key_W = false;
-var key_A = false;
-var key_S = false;
-var key_D = false;
-var key_Space = false;
+var key_W, key_A, key_S, key_D, key_Space = false;
 
-var spacebar_flag = false;
-var target = new THREE.Vector3();
+var target = new THREE.Vector3(); // Para mover la cabeza con la cámara
 
-function screate_scene() {
+// Iniciar el programa
+function init() {
+	create_scene();
+	create_lights();
+	create_robot();
+	create_environment();
+	init_sky();
+	animate();
+}
+
+// Crear la escena en general y añadir los controles de cámara.
+function create_scene() {
 
 	HEIGHT = window.innerHeight;
 	WIDTH = window.innerWidth;
 	scene = new THREE.Scene();
-	aspectRatio = WIDTH / HEIGHT;
-	fieldOfView = 60;
-	nearPlane = 1;
-	farPlane = 10000;
+	aspect_ratio = WIDTH / HEIGHT;
+	fov = 60;
+	near_plane = 1;
+	far_plane = 10000;
 	camera = new THREE.PerspectiveCamera(
-		fieldOfView,
-		aspectRatio,
-		nearPlane,
-		farPlane
+		fov,
+		aspect_ratio,
+		near_plane,
+		far_plane
 	);
 	camera.position.x = 0;
 	camera.position.z = -900;
@@ -40,23 +50,14 @@ function screate_scene() {
 	renderer.shadowMap.enabled = true;
 	container = document.getElementById('c');
 	container.appendChild(renderer.domElement);
-	window.addEventListener('resize', handleWindowResize, false);
+	window.addEventListener('resize', handle_window_resize, false);
 
+	// Librería auxiliar
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
-	
-	// añadidos para mover la cámara con el ratón
-	// controls.dispose();
-	// controls.update();	
-	// document.addEventListener('mousemove', onDocumentMouseMove, false);
 }
 
-// function onDocumentMouseMove( event ) {
-//     // Manually fire the event in OrbitControls
-//     controls.handleMouseMoveRotate(event);
-// }
-
-function handleWindowResize() {
-	// update height and width of the renderer and the camera
+// Actualizar la cámara, altura y anchura si se modifica el tamaño de la ventana
+function handle_window_resize() {
 	HEIGHT = window.innerHeight;
 	WIDTH = window.innerWidth;
 	renderer.setSize(WIDTH, HEIGHT);
@@ -64,17 +65,15 @@ function handleWindowResize() {
 	camera.updateProjectionMatrix();
 }
 
-var hemisphereLight, shadowLight;
-
+// Luces de la escena
 function create_lights() {
-	hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9)
-	shadowLight = new THREE.DirectionalLight(0xffffff, .9);
+	hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9) // Luz ambiente
+	shadowLight = new THREE.DirectionalLight(0xffffff, .9); // Luz del "sol" direccional
 
 	shadowLight.position.set(-100, 250, -200);
-
 	shadowLight.castShadow = true;
 
-	// define the visible area of the projected shadow
+	// Area para proyectar las sombras
 	shadowLight.shadow.camera.left = -4000;
 	shadowLight.shadow.camera.right = 4000;
 	shadowLight.shadow.camera.top = 4000;
@@ -86,24 +85,17 @@ function create_lights() {
 	shadowLight.shadow.normalBias = 0.1;
 	shadowLight.shadow.bias = -0.0001;
 
-
-	// define the resolution of the shadow; the higher the better, 
-	// but also the more expensive and less performant
+	// Resolución de las sombras: si va mal, reducirla
 	shadowLight.shadow.mapSize.width = 4096;
 	shadowLight.shadow.mapSize.height = 4096;
 	
-	// to activate the lights, just add them to the scene
 	scene.add(hemisphereLight);  
 	scene.add(shadowLight);
 }
 
-
-
-
-// var model;
-// var skyBox;
-
+// Cargar las texturas del fondo
 function init_sky(){
+	// Imágenes/texturas
     var urls = [
         'imgs/space_pos_x.jpg',
 		'imgs/space_neg_x.jpg',
@@ -113,21 +105,19 @@ function init_sky(){
 		'imgs/space_pos_z.jpg',
 
     ];
-
 	var reflectionCube = new THREE.CubeTextureLoader().load(urls);
-    scene.background = reflectionCube;
+    scene.background = reflectionCube; // Añadirlas al background
 
 }
 
-
-
+// Crear el objeto Robot y añadirlo
 function create_robot(){ 
-	
-	robot = new Robot('alberto');
+	robot = new Robot();
 	robot.model.position.set(0, 0, 0);
 	scene.add(robot.model);
 }
 
+// Crear el suelo, los asteroides y el poster
 function create_environment(){
 
 	var loader = new THREE.TextureLoader()
@@ -135,7 +125,7 @@ function create_environment(){
 	const comet_texture = loader.load('imgs/comet.jpg');
 	var comet_mat = new THREE.MeshStandardMaterial({map: comet_texture, roughness: 1, side: THREE.DoubleSide});
 
-	const moon_texture = loader.load('imgs/moon2.jpg');
+	const moon_texture = loader.load('imgs/moon.jpg');
 	var moon_mat = new THREE.MeshStandardMaterial({map: moon_texture, roughness: 1, side: THREE.DoubleSide});
 
 	const poster_texture = loader.load('imgs/iron_giant.png');
@@ -175,19 +165,7 @@ function create_environment(){
 
 }
 
-
-function init() {
-
-    window.addEventListener('keydown', handleKeyDown, true)
-    window.addEventListener('keyup', handleKeyUp, true)
-	screate_scene();
-	create_lights();
-	create_robot();
-	create_environment();
-	init_sky();
-	animate();
-}
-
+// Animar el robot
 function animate(){
 	controls.update();
 	movement();
@@ -195,6 +173,7 @@ function animate(){
 	requestAnimationFrame(animate);
 }
 
+// Con los controles, animar el movimiento
 function movement(){
 	if(key_Space){
 		// cambiar + por - si quieres que mire a cámara...
@@ -212,7 +191,6 @@ function movement(){
     }
 	if(key_A){
         robot.model.rotation.y += 0.04;
-		//scene.getObjectByName("head").rotation.y += 0.04
 		robot.update_pose();
     }
 	if(key_S){
@@ -223,12 +201,13 @@ function movement(){
     }
     if(key_D){
         robot.model.rotation.y -= 0.04;
-		//scene.getObjectByName("head").rotation.y -= 0.04
 		robot.update_pose();
     }
 
 }
-function handleKeyDown(event){
+
+// Funciones auxiliares para las teclas
+function handle_key_down(event){
 	switch(event.keyCode){
 		case 87:
 			key_W = true;
@@ -245,7 +224,7 @@ function handleKeyDown(event){
 	}
 }
 
-function handleKeyUp(event){
+function handle_key_up(event){
 	switch(event.keyCode){
 		case 87:
 			key_W = false;
@@ -263,21 +242,4 @@ function handleKeyUp(event){
 			key_Space = !key_Space;
 			break;
 	}
-}
-
-function readTextFile(image, file) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4)
-        {
-            if(rawFile.status === 200 || rawFile.status == 0)
-            {
-                var allText = rawFile.responseText;
-                image.src = allText;
-            }
-        }
-    }
-    rawFile.send(null);
 }

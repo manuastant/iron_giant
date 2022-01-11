@@ -1,4 +1,5 @@
-var Colors = {
+// Colores, texturas y materiales
+var colors = {
 	red:0xCA3C38,
 	white:0xffffff,
 	grey:0xb5b5b5,
@@ -13,19 +14,19 @@ const shiny_metal_texture = loader.load('imgs/metal2.jpg');
 const dented_metal_texture = loader.load('imgs/metal3.jpg');
 const screw_thread_texture = loader.load('imgs/screw_thread.jpg');
 
-var greyMat = new THREE.MeshStandardMaterial({map: shiny_metal_texture, color: Colors.white, roughness: 0.5, metalness: 0.4});
-var redMat = new THREE.MeshPhongMaterial({color:Colors.red, flatShading: true});
-var whiteMat = new THREE.MeshPhongMaterial({color:Colors.white});
-var greyMat = new THREE.MeshStandardMaterial({map: shiny_metal_texture, color: Colors.white, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide});
-var darkGreyMat = new THREE.MeshPhongMaterial({map: metal_texture, color:Colors.darkGrey, side: THREE.DoubleSide, shininess: 5, specular: Colors.white});
-var darkerGreyMat = new THREE.MeshPhongMaterial({map: dented_metal_texture, color:Colors.white, side: THREE.DoubleSide, shininess: 5, specular: Colors.white});
-var lightMat = new THREE.MeshBasicMaterial( { color: Colors.lightYellow} );
+var greyMat = new THREE.MeshStandardMaterial({map: shiny_metal_texture, color: colors.white, roughness: 0.5, metalness: 0.4});
+var redMat = new THREE.MeshPhongMaterial({color:colors.red, flatShading: true});
+var whiteMat = new THREE.MeshPhongMaterial({color:colors.white});
+var greyMat = new THREE.MeshStandardMaterial({map: shiny_metal_texture, color: colors.white, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide});
+var darkGreyMat = new THREE.MeshPhongMaterial({map: metal_texture, color:colors.darkGrey, side: THREE.DoubleSide, shininess: 5, specular: colors.white});
+var darkerGreyMat = new THREE.MeshPhongMaterial({map: dented_metal_texture, color:colors.white, side: THREE.DoubleSide, shininess: 5, specular: colors.white});
+var lightMat = new THREE.MeshBasicMaterial( { color: colors.lightYellow} );
 
-var jawMat = new THREE.MeshPhongMaterial({map: metal_texture, color:Colors.darkGrey, flatShading: true, side: THREE.DoubleSide, shininess: 7, specular: Colors.white});
-var screwMat = new THREE.MeshPhongMaterial({map: screw_thread_texture, color:Colors.grey, side: THREE.DoubleSide, shininess: 7, specular: Colors.white});
+var jawMat = new THREE.MeshPhongMaterial({map: metal_texture, color:colors.darkGrey, flatShading: true, side: THREE.DoubleSide, shininess: 7, specular: colors.white});
+var screwMat = new THREE.MeshPhongMaterial({map: screw_thread_texture, color:colors.grey, side: THREE.DoubleSide, shininess: 7, specular: colors.white});
 
 // Cargar una textura sobre una forma custom como Extrude
-const extrude_texture = loader.load('imgs/metal3.jpg', texture => {
+const extrude_texture = loader.load(metal3.src, texture => {
     darkerGreyMat.map = texture;
     darkerGreyMat.needsUpdate = true;
 });
@@ -34,52 +35,49 @@ extrude_texture.repeat.set(0.008, 0.008);
 
 var pose_flag = true; // para las rotaciones al caminar
 
-var Robot = function(input_name) {
+// Comenzar a crear el robot por partes
+var Robot = function() {
 	
+	// Modelo general
 	this.model = new THREE.Object3D();
 
+	// Cabeza
 	var head = this.create_head();
 	head.scale.set(0.9, 0.9, 0.9);
 	head.position.y = 50;
 	this.model.add(head);
 
+	// Cuerpo
 	var torso = this.create_torso();
 	this.model.add(torso);
 
+	// Brazos
 	var left_arm = this.create_arm('left_arm');
 	left_arm.position.set(-48, -95, 0);
 	this.model.add(left_arm);
  
-
 	var right_arm = this.create_arm('right_arm');
 	right_arm.position.set(-48, -95, 0);
 	right_arm.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1)); // espejo del otro brazo
 	this.model.add(right_arm);
 
+	// Piernas
 	var left_leg = this.create_leg('left_leg');
 	left_leg.position.set(-63, -175, 0);
 	this.model.add(left_leg);
 
-
-	// ESFERA DE CONTROL
-	// var geom = new THREE.SphereGeometry(10, 64, 64);
-	// var sphere = new THREE.Mesh(geom, lightMat);
-	// sphere.position.set(30, 50, 0);
-	// this.model.add(sphere)
-
 	var right_leg = this.create_leg('right_leg');
 	right_leg.position.set(-63, -175, 0);
-	right_leg.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1)); // espejo del otro brazo
+	right_leg.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1)); // espejo de la otra pierna
 	this.model.add(right_leg);
 
 	this.model.position.set(0, 0, 0);
-
-	this.model.name = input_name;
 
 	return this;
 
 };
 
+// Cabeza
 Robot.prototype.create_head = function() {
 
 	var head = new THREE.Object3D();
@@ -98,7 +96,6 @@ Robot.prototype.create_head = function() {
 
 	head.add(bot_head)
 
-
 	// Ojos
 	var right_eye = this.create_eye();
 	right_eye.position.set(-10, 10, -11);
@@ -110,7 +107,7 @@ Robot.prototype.create_head = function() {
 
 	// Antena/cresta
 	var antenna = this.create_antenna();
-	antenna.position.y = 15; // 20 bien
+	antenna.position.y = 15;
 	head.add(antenna);
 
 	// Mandíbula
@@ -128,6 +125,7 @@ Robot.prototype.create_head = function() {
 
 }
 
+// Ojo con luz
 Robot.prototype.create_eye = function() {
 	var eye = new THREE.Object3D();
 
@@ -140,14 +138,15 @@ Robot.prototype.create_eye = function() {
 
 	eye.add(socket);
 
-	var light = this.createLight();
+	var light = this.create_light();
 	light.position.z = -7;
 	eye.add(light);
 
 	return eye;
 }
 
-Robot.prototype.createLight = function() {
+// Fuente de luz que se coloca en el ojo
+Robot.prototype.create_light = function() {
 	var light = new THREE.Object3D();
 
 	var lightSphere = new THREE.Mesh( 
@@ -176,6 +175,7 @@ Robot.prototype.createLight = function() {
 	return light;
 }
 
+// Antena en la cabeza
 Robot.prototype.create_antenna = function() {
 	var antenna = new THREE.Object3D();
 
@@ -187,8 +187,6 @@ Robot.prototype.create_antenna = function() {
 	left_cone.rotation.z = Math.PI / 2;
 	left_cone.position.x = -3.5;
 
-	//left_cone.castShadow = true;
-	//left_cone.receiveShadow = true;
 	antenna.add(left_cone);
 
 	var right_cone_geom = new THREE.ConeGeometry(22, 7, 64);
@@ -205,14 +203,12 @@ Robot.prototype.create_antenna = function() {
 	return antenna;
 }
 
+// Mandíbula
 Robot.prototype.create_jaw = function() {
 	var jaw = new THREE.Object3D();
 
-	// Create Jaw
 	var front_jaw_geom = new THREE.CylinderGeometry(24, 24, 15, 4, 6, true, 0, 3.5);
 	var front_jaw = new THREE.Mesh(front_jaw_geom, jawMat);
-	// jaw.castShadow = true;
-	// jaw.receiveShadow = true;
 	front_jaw.position.set(0,-10, 0);
 	front_jaw.rotation.y = Math.PI * 0.45;
 	jaw.add(front_jaw);
@@ -256,6 +252,7 @@ Robot.prototype.create_jaw = function() {
 	return jaw;
 }
 
+// Cuerpo
 Robot.prototype.create_torso = function(){
 	var torso = new THREE.Object3D();
 
@@ -276,13 +273,10 @@ Robot.prototype.create_torso = function(){
 
 	var fin2 = fin1.clone();
 	fin2.position.set(-40, 15, 0);
-	// fin2.rotation.z = Math.PI * 0.5;
-	// fin2.castShadow = true;
 	torso.add(fin2);
 
 	fin3 = fin1.clone()
 	fin3.position.set(40, 15, 0);
-	// fin3.rotation.z = Math.PI * 0.5;
 	torso.add(fin3);
 
 	fin4 = fin1.clone();
@@ -299,6 +293,7 @@ Robot.prototype.create_torso = function(){
 	s_circle.position.set(0, 3, -37.2);
 	torso.add(s_circle);
 
+	// Añadir "S" cargando una fuente y un texto.
 	text_geom = new THREE.FontLoader().load('imgs/helvetiker_bold.typeface.json', function(response) {
   		var font = response;
 		var text_geom = new THREE.TextGeometry( 'S', {
@@ -378,6 +373,7 @@ Robot.prototype.create_torso = function(){
 	return torso;
 }
 
+// Crear brazo
 Robot.prototype.create_arm = function(input_name){
 	var arm = new THREE.Object3D();
 
@@ -430,6 +426,7 @@ Robot.prototype.create_arm = function(input_name){
 	return arm;
 }
 
+// Crear mano
 Robot.prototype.create_hand = function(){
 	var hand = new THREE.Object3D();
 
@@ -489,6 +486,7 @@ Robot.prototype.create_hand = function(){
 	return hand;
 }
 
+// Crear pierna
 Robot.prototype.create_leg = function(input_name){
 	var leg = new THREE.Object3D();
 
@@ -552,22 +550,24 @@ Robot.prototype.create_leg = function(input_name){
 
 }
 
+
+// Actualizar postura para mostrar movimiento
 Robot.prototype.update_pose = function() {
 
 	if(pose_flag){
-		rotateAboutPoint(this.model.children[2], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01, false); // brazo izquierdo
-		rotateAboutPoint(this.model.children[3], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), Math.PI*0.01, false); // brazo derecho
-		rotateAboutPoint(this.model.children[4], new THREE.Vector3(40, -75, 0), new THREE.Vector3(1,0,0), Math.PI*0.01, false); // pierna izquierda
-		rotateAboutPoint(this.model.children[5], new THREE.Vector3(-40, -75, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01, false); // pierna derecha
+		rotate_over_point(this.model.children[2], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01); // brazo izquierdo
+		rotate_over_point(this.model.children[3], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), Math.PI*0.01); // brazo derecho
+		rotate_over_point(this.model.children[4], new THREE.Vector3(40, -75, 0), new THREE.Vector3(1,0,0), Math.PI*0.01); // pierna izquierda
+		rotate_over_point(this.model.children[5], new THREE.Vector3(-40, -75, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01); // pierna derecha
 		if(this.model.children[2].rotation.x < -0.6){
 			pose_flag = false;
 		}
 	}
 	else{
-		rotateAboutPoint(this.model.children[2], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), Math.PI*0.01, false ); // brazo izquierdo
-		rotateAboutPoint(this.model.children[3], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01, false ); // brazo derecho
-		rotateAboutPoint(this.model.children[4], new THREE.Vector3(40, -75, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01, false); // pierna izquierda
-		rotateAboutPoint(this.model.children[5], new THREE.Vector3(-40, -75, 0), new THREE.Vector3(1,0,0), Math.PI*0.01, false); // pierna derecha
+		rotate_over_point(this.model.children[2], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), Math.PI*0.01); // brazo izquierdo
+		rotate_over_point(this.model.children[3], new THREE.Vector3(-55, 5, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01); // brazo derecho
+		rotate_over_point(this.model.children[4], new THREE.Vector3(40, -75, 0), new THREE.Vector3(1,0,0), -Math.PI*0.01); // pierna izquierda
+		rotate_over_point(this.model.children[5], new THREE.Vector3(-40, -75, 0), new THREE.Vector3(1,0,0), Math.PI*0.01); // pierna derecha
 		if(this.model.children[2].rotation.x > 0.6){
 			pose_flag = true;
 		}
@@ -575,90 +575,11 @@ Robot.prototype.update_pose = function() {
 
 }
 
-
-// Robot.prototype.cameraChases = function(inCamera){
-// 	var panClock = clock.elapsedTime / 1400.0;
-
-// 	//TODO have target chase camera angle and distance for each pose! brilliant!
-
-// 	relativeCameraOffset.x = 10 + 1 * Math.sin(panClock);
-// 	relativeCameraOffset.y = 300;
-// 	relativeCameraOffset.z = 300 + 10 * Math.cos(panClock);
-
-// 	var cameraOffset = relativeCameraOffset.applyMatrix4( this.model.matrixWorld );
-
-// 	inCamera.position.x = cameraOffset.x;
-// 	inCamera.position.y = cameraOffset.y;
-// 	inCamera.position.z = cameraOffset.z;	
-
-// 	targetPosition.x = this.model.position.x;
-// 	targetPosition.y = this.model.position.y + 170;
-// 	targetPosition.z = this.model.position.z;
-// 	inCamera.lookAt( targetPosition );
-	
-// 	inCamera.updateMatrix();
-// 	inCamera.updateProjectionMatrix();
-// }
-
-// Robot.prototype.cameraChases = function(old_position){
-// 	console.log(old_position)
-// 	const newObjectPosition = new THREE.Vector3();
-// 	this.model.getWorldPosition(newObjectPosition);
-
-// 	const delta = newObjectPosition.clone().sub(old_position);
-
-// 	return(delta);
-// }
-
-function readTextFile(image, file) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4)
-        {
-            if(rawFile.status === 200 || rawFile.status == 0)
-            {
-                var allText = rawFile.responseText;
-                image.src = allText;
-            }
-        }
-    }
-    rawFile.send(null);
-}
-
-function readJsonFile(json, file) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4)
-        {
-            if(rawFile.status === 200 || rawFile.status == 0)
-            {
-                var allText = rawFile.responseText;
-                json.src = allText;
-            }
-        }
-    }
-    rawFile.send(null);
-}
-
-function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
-    pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
-
-    if(pointIsWorld){
-        obj.parent.localToWorld(obj.position); // compensate for world coordinate
-    }
-
-    obj.position.sub(point); // remove the offset
-    obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
-    obj.position.add(point); // re-add the offset
-
-    if(pointIsWorld){
-        obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
-    }
-
-    obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+// Función auxiliar para rotar sobre un punto: mover al origen, rotar y mover al inicio.
+function rotate_over_point(obj, point, axis, theta){
+    obj.position.sub(point);
+    obj.position.applyAxisAngle(axis, theta);
+    obj.position.add(point);
+    obj.rotateOnAxis(axis, theta);
 }
 

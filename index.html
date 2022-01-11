@@ -1,0 +1,50 @@
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Three JS: Gigante de Hierro</title>
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    #c {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(#000000, #515151, #000000);
+    }
+    #controls{
+      position: absolute;
+      top: 0px;
+      left: -0px;
+      z-index: 1000;
+      background-color: transparent;
+      font-size: 1em;
+      color:white
+    }
+    </style>
+  </head>
+  <body>
+    <div id='c'></div>
+    <div id='controls'>
+      <b>Manuel Astorgano Antón</b><br>
+      <ul>
+        <li><b>Mover cámara</b>: click derecho + arrastrar</li>
+        <li><b>Rotar cámara</b>: click izquierdo + arrastrar<br></li>
+        <li><b>Zoom</b>: rueda del ratón<br></li>
+        <li><b>Movimiento</b>: WASD<br></li>
+        <li><b>Fijar/Desfijar cabeza</b>: Espacio (rotar cámara para mover)<br></li>
+      </ul>
+      <br>
+      </div>
+  </body>
+  <script type="text/javascript" src="js/three.min_new.js"></script>
+  <script type="text/javascript" src="js/OrbitControls.js"> </script>
+  <script type="text/javascript" src="js/robot.js"> </script>
+  <script type="text/javascript" src="js/main.js"> </script>
+
+</html>
+
