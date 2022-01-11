@@ -6,4 +6,4 @@
 
 ## NOTA
 Se ha implementado una página web en GitHub (con simplificaciones para leer las texturas) por si este proyecto diera problemas al ejecutarse en local.
-- URL: https://manuastant.github.io/iron_giant/test01.html
+- URL: https://manuastant.github.io/iron_giant/index.html
